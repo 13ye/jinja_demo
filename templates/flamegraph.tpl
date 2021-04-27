@@ -31,7 +31,7 @@
 		// set as width of this svg
 		xmax_gl = 0.0;
 		prefix = "";
-		suffix = "diff: 0s";
+		suffix = "diff: 0ms";
 		timesnow = document.getElementById("timesnow").firstChild;
 		time_x = document.getElementsByTagName("line")[1];
 		details = document.getElementById("details").firstChild;
@@ -67,13 +67,13 @@
 		var target = find_group(e.target);
 		if (target) details.nodeValue = "Function: " + g_to_text(target);
 		// zoom后计算相对值
-		//prefix = "timestick: "+e.clientX +"s; ";
+		//prefix = "timestick: "+e.clientX +"ms; ";
 		var newTime = 0;
 		timeNow_gl = timeMultiple * ( xmin_gl - 10.0 + (xmax_gl - xmin_gl)*(e.clientX-10.0)/(svg.width.baseVal.value- 2*10.0) )
 		if(timeNow_gl<0){
 			timeNow_gl = 0.0;
 		}
-		prefix = "timestick: "+ timeNow_gl +"s; ";
+		prefix = "timestick: "+ timeNow_gl +"ms; ";
 		timesnow.nodeValue = prefix + suffix;
 	}, false)
 
@@ -92,9 +92,9 @@
 		if(timeNow_gl<0){
 			timeNow_gl = 0.0;
 		}
-		prefix = "timestick: "+ timeNow_gl +"s; ";
+		prefix = "timestick: "+ timeNow_gl +"ms; ";
 		var lastTimeNow_gl = timeMultiple * ( xmin_gl - 10.0 + (xmax_gl - xmin_gl)*(time_x.getAttribute("x1")-10.0)/(svg.width.baseVal.value- 2*10.0) )
-		suffix = "diff: "+String( timeNow_gl - lastTimeNow_gl )+"s";
+		suffix = "diff: "+String( timeNow_gl - lastTimeNow_gl )+"ms";
 		timesnow.nodeValue = prefix + suffix;
 
 		time_x.setAttribute("x1",e.clientX);
