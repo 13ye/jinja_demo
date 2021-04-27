@@ -1,0 +1,906 @@
+read:
+  Cpustat:
+  - cpu_max: 12.108
+    cpu_avg: 11.957666666666666
+  - cpu_max: 12.225
+    cpu_avg: 12.199333333333334
+  - cpu_max: 12.234
+    cpu_avg: 12.166666666666666
+  - cpu_max: 12.196
+    cpu_avg: 12.034666666666666
+  - cpu_max: 12.246
+    cpu_avg: 11.997333333333335
+  - cpu_max: 12.111
+    cpu_avg: 11.978333333333333
+  - cpu_max: 12.214
+    cpu_avg: 12.028
+  - cpu_max: 12.219
+    cpu_avg: 12.027666666666667
+  - cpu_max: 12.124
+    cpu_avg: 11.971333333333334
+  - cpu_max: 0.113
+    cpu_avg: 0.112
+  - cpu_max: 12.208
+    cpu_avg: 12.062333333333333
+  - cpu_max: 12.19
+    cpu_avg: 12.042666666666667
+  - cpu_max: 12.135
+    cpu_avg: 11.952
+  - cpu_max: 12.206
+    cpu_avg: 11.997
+  - cpu_max: 11.636
+    cpu_avg: 11.560333333333332
+  - cpu_max: 11.625
+    cpu_avg: 11.507333333333333
+  Iostat:
+  - wmb_max: 0.018000000000000002
+    wmb_avg: 0.009000000000000001
+    wrq_max: 0.5
+    wrq_avg: 0.25
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.1
+    util_avg: 0.05
+  - wmb_max: 0.333
+    wmb_avg: 0.1885
+    wrq_max: 60.5
+    wrq_avg: 30.5
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.2
+    util_avg: 0.15000000000000002
+  - wmb_max: 0.062
+    wmb_avg: 0.044
+    wrq_max: 13.25
+    wrq_avg: 7
+    rmb_max: 0.064
+    rmb_avg: 0.032
+    rrq_max: 0.5
+    rrq_avg: 0.25
+    util_max: 0.4
+    util_avg: 0.30000000000000004
+  - wmb_max: 0.14300000000000002
+    wmb_avg: 0.0845
+    wrq_max: 20.75
+    wrq_avg: 10.625
+    rmb_max: 0.002
+    rmb_avg: 0.001
+    rrq_max: 0.25
+    rrq_avg: 0.125
+    util_max: 0.2
+    util_avg: 0.15000000000000002
+  - wmb_max: 0.09
+    wmb_avg: 0.053
+    wrq_max: 8
+    wrq_avg: 4.25
+    rmb_max: 0.636
+    rmb_avg: 0.536
+    rrq_max: 10
+    rrq_avg: 7.5
+    util_max: 1.4
+    util_avg: 1.35
+  - wmb_max: 0.013000000000000001
+    wmb_avg: 0.006500000000000001
+    wrq_max: 0.5
+    wrq_avg: 0.25
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.1
+    util_avg: 0.05
+  - wmb_max: 0.007
+    wmb_avg: 0.0035
+    wrq_max: 0.5
+    wrq_avg: 0.25
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.1
+    util_avg: 0.05
+  - wmb_max: 0.219
+    wmb_avg: 0.1115
+    wrq_max: 44.25
+    wrq_avg: 22.375
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.2
+    util_avg: 0.15000000000000002
+  - wmb_max: 0.009000000000000001
+    wmb_avg: 0.0045000000000000005
+    wrq_max: 0.5
+    wrq_avg: 0.25
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.1
+    util_avg: 0.05
+  - wmb_max: 0.003
+    wmb_avg: 0.0015
+    wrq_max: 0.5
+    wrq_avg: 0.25
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.1
+    util_avg: 0.05
+  - wmb_max: 0.003
+    wmb_avg: 0.0015
+    wrq_max: 0.5
+    wrq_avg: 0.25
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.1
+    util_avg: 0.05
+  - wmb_max: 0.007
+    wmb_avg: 0.0035
+    wrq_max: 0.5
+    wrq_avg: 0.25
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.1
+    util_avg: 0.05
+  - wmb_max: 0.006
+    wmb_avg: 0.003
+    wrq_max: 0.5
+    wrq_avg: 0.25
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.1
+    util_avg: 0.05
+  - wmb_max: 0.029
+    wmb_avg: 0.016
+    wrq_max: 6.5
+    wrq_avg: 3.5
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.1
+    util_avg: 0.1
+  - wmb_max: 0.032
+    wmb_avg: 0.0205
+    wrq_max: 0.5
+    wrq_avg: 0.5
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.1
+    util_avg: 0.1
+  - wmb_max: 0.016
+    wmb_avg: 0.008
+    wrq_max: 2
+    wrq_avg: 1
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 0.3
+    util_avg: 0.15
+  Memstat:
+  - mem_max: 18.9
+    mem_avg: 3.827
+    loads: 1.3768728473e+10
+    stores: 1.3100933177e+10
+  - mem_max: 18.5
+    mem_avg: 3.821
+    loads: 1.3155971448e+10
+    stores: 1.2472446433e+10
+  - mem_max: 16.2
+    mem_avg: 3.821
+    loads: 1.3656033773e+10
+    stores: 1.291246179e+10
+  - mem_max: 16.8
+    mem_avg: 3.815
+    loads: 1.4631631068e+10
+    stores: 1.3820396918e+10
+  - mem_max: 15.8
+    mem_avg: 3.851
+    loads: 1.4767606978e+10
+    stores: 1.3955606488e+10
+  - mem_max: 0.2
+    mem_avg: 0
+    loads: 0
+    stores: 0
+  - mem_max: 17.1
+    mem_avg: 3.827
+    loads: 1.3891879964e+10
+    stores: 1.2991107141e+10
+  - mem_max: 13.9
+    mem_avg: 3.827
+    loads: 1.2914025116e+10
+    stores: 1.2444005275e+10
+  - mem_max: 15.7
+    mem_avg: 3.791
+    loads: 1.3176581739e+10
+    stores: 1.2711858187e+10
+  - mem_max: 0.2
+    mem_avg: 0
+    loads: 1.176662e+06
+    stores: 938330
+  - mem_max: 15.8
+    mem_avg: 3.809
+    loads: 1.4256819879e+10
+    stores: 1.3467564215e+10
+  - mem_max: 14.8
+    mem_avg: 3.815
+    loads: 1.3616501033e+10
+    stores: 1.2512816801e+10
+  - mem_max: 17.3
+    mem_avg: 3.821
+    loads: 1.3015311787e+10
+    stores: 1.250822955e+10
+  - mem_max: 17.2
+    mem_avg: 3.791
+    loads: 1.3392832094e+10
+    stores: 1.2698827602e+10
+  - mem_max: 17.5
+    mem_avg: 3.821
+    loads: 1.391183447e+10
+    stores: 1.3077016629e+10
+  - mem_max: 16.3
+    mem_avg: 3.857
+    loads: 1.3606384828e+10
+    stores: 1.2872101006e+10
+  Netstat:
+  - rxmb_max: 0.04764912207638078
+    rxmb_avg: 0.020033246981144663
+    rxpac_max: 94.62826861811185
+    rxpac_avg: 39.80016608915277
+    rxpackb_max: 0.515625
+    rxpackb_avg: 0.5129464285714286
+    txmb_max: 2.1646785905332093
+    txmb_avg: 0.9241231086028238
+    txpac_max: 74.7065278564041
+    txpac_avg: 30.50552161029349
+    txpackb_max: 51.265625
+    txpackb_avg: 29.533923611111113
+  - rxmb_max: 0.0507110094125141
+    rxmb_avg: 0.029696168736715996
+    rxpac_max: 100.70899129874316
+    rxpac_avg: 49.92761464832743
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6002455357142857
+    txmb_max: 2.3984002406236784
+    txmb_avg: 1.0108006348379028
+    txpac_max: 75.53174347405736
+    txpac_avg: 38.284626365468256
+    txpackb_max: 45.765625
+    txpackb_avg: 26.94794668962312
+  - rxmb_max: 0.12517450765459404
+    rxmb_avg: 0.04277110486360728
+    rxpac_max: 123.866458918711
+    rxpac_avg: 59.99631668104739
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6194627192982456
+    txmb_max: 2.4303866752072882
+    txmb_avg: 1.0850404196086931
+    txpac_max: 82.57763927914067
+    txpac_avg: 44.36303497983057
+    txpackb_max: 51.265625
+    txpackb_avg: 28.17293224781098
+  - rxmb_max: 0.13648802093089965
+    rxmb_avg: 0.04131571551740219
+    rxpac_max: 136.98309371048566
+    rxpac_avg: 55.23573826339962
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6165598290598291
+    txmb_max: 1.5595986827644637
+    txmb_avg: 0.8705345750270951
+    txpac_max: 93.66365381913549
+    txpac_avg: 40.62306580291172
+    txpackb_max: 51.265625
+    txpackb_avg: 26.87844111689815
+  - rxmb_max: 0.0449900453047684
+    rxmb_avg: 0.018706541243775736
+    rxpac_max: 89.34750330585763
+    rxpac_avg: 37.242811936327726
+    rxpackb_max: 0.515625
+    rxpackb_avg: 0.5112980769230769
+    txmb_max: 2.1149287357841016
+    txmb_avg: 0.8358673155507642
+    txpac_max: 66.60450246436659
+    txpac_avg: 29.02902269377115
+    txpackb_max: 45.765625
+    txpackb_avg: 27.401825016801077
+  - rxmb_max: 0.05692715718609415
+    rxmb_avg: 0.02150614750748427
+    rxpac_max: 113.05388404084444
+    rxpac_avg: 42.806691909076335
+    rxpackb_max: 0.515625
+    rxpackb_avg: 0.50859375
+    txmb_max: 2.7770623089049398
+    txmb_avg: 1.011692693159407
+    txpac_max: 87.4567782202759
+    txpac_avg: 34.65689326173411
+    txpackb_max: 45.765625
+    txpackb_avg: 25.67924209770115
+  - rxmb_max: 0.050480820548657206
+    rxmb_avg: 0.029966855957177702
+    rxpac_max: 85.76370194254784
+    rxpac_avg: 50.439675012601185
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6008543165467626
+    txmb_max: 2.2694176196090963
+    txmb_avg: 1.0521105448720738
+    txpac_max: 71.46975161878987
+    txpac_avg: 40.310536471523044
+    txpackb_max: 51.265625
+    txpackb_avg: 27.241172849416934
+  - rxmb_max: 0.03171229011589685
+    rxmb_avg: 0.015030111872651497
+    rxpac_max: 62.97868621319442
+    rxpac_avg: 29.91085463140098
+    rxpackb_max: 0.515625
+    rxpackb_avg: 0.512625
+    txmb_max: 1.6726517003120658
+    txmb_avg: 0.7541071227428074
+    txpac_max: 51.41117241893422
+    txpac_avg: 24.643866118251612
+    txpackb_max: 57.078125
+    txpackb_avg: 29.645287633305987
+  - rxmb_max: 0.054868675050333354
+    rxmb_avg: 0.034321247001986376
+    rxpac_max: 108.96586327571657
+    rxpac_avg: 58.66939012980875
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6040345149253732
+    txmb_max: 2.4139896993603323
+    txmb_avg: 1.1628161927516638
+    txpac_max: 76.02269530863947
+    txpac_avg: 43.26238364294205
+    txpackb_max: 45.765625
+    txpackb_avg: 26.874095259579132
+  - rxmb_max: 0.07738085436269855
+    rxmb_avg: 0.02905207030209709
+    rxpac_max: 73.77590603018055
+    rxpac_avg: 41.71609469135346
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6273072429906541
+    txmb_max: 1.4515099290163973
+    txmb_avg: 0.7665184739614579
+    txpac_max: 50.33309476825402
+    txpac_avg: 31.42264781118385
+    txpackb_max: 45.765625
+    txpackb_avg: 27.12925330234834
+  - rxmb_max: 0.032741121972926515
+    rxmb_avg: 0.01674163580072313
+    rxpac_max: 65.02188392780945
+    rxpac_avg: 33.2750449396489
+    rxpackb_max: 0.515625
+    rxpackb_avg: 0.5145220588235294
+    txmb_max: 1.8059085136695812
+    txmb_avg: 0.8088210033605818
+    txpac_max: 55.53952585500391
+    txpac_avg: 27.46516495823878
+    txpackb_max: 51.265625
+    txpackb_avg: 29.671507360730764
+  - rxmb_max: 0.08148714573978078
+    rxmb_avg: 0.034127202872158834
+    rxpac_max: 108.04326201236164
+    rxpac_avg: 51.963770974172064
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6141145833333332
+    txmb_max: 2.779157414928738
+    txmb_avg: 1.0565149000716227
+    txpac_max: 85.68948366497646
+    txpac_avg: 40.47304812153719
+    txpackb_max: 51.265625
+    txpackb_avg: 28.554593796851577
+  - rxmb_max: 0.12275589508715161
+    rxmb_avg: 0.0348284906727944
+    rxpac_max: 119.10394851244583
+    rxpac_avg: 44.23090778266916
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6235795454545455
+    txmb_max: 0.8790676863932807
+    txmb_avg: 0.7047224352511943
+    txpac_max: 83.37276395871207
+    txpac_avg: 33.38875234972928
+    txpackb_max: 57.078125
+    txpackb_avg: 28.055592679944095
+  - rxmb_max: 0.1424641056009928
+    rxmb_avg: 0.04590062443338204
+    rxpac_max: 141.64916580958658
+    rxpac_avg: 62.9006755235171
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6184782608695653
+    txmb_max: 2.2888587026735023
+    txmb_avg: 1.1221002772855848
+    txpac_max: 93.61162262198765
+    txpac_avg: 46.229504743186894
+    txpackb_max: 57.078125
+    txpackb_avg: 28.807628375986138
+  - rxmb_max: 0.12627097159879347
+    rxmb_avg: 0.03631390885052996
+    rxpac_max: 124.34950353735822
+    rxpac_avg: 46.83382347985424
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6204646017699116
+    txmb_max: 0.9831588821232388
+    txmb_avg: 0.7466802484916027
+    txpac_max: 83.63329441450641
+    txpac_avg: 34.37932086758811
+    txpackb_max: 57.078125
+    txpackb_avg: 27.929288927742146
+  - rxmb_max: 0.13835747222198588
+    rxmb_avg: 0.0375662215012619
+    rxpac_max: 134.9170078081699
+    rxpac_avg: 46.63372981613962
+    rxpackb_max: 6.671875
+    rxpackb_avg: 0.6225225225225225
+    txmb_max: 1.1080003923257062
+    txmb_avg: 0.7253532187929251
+    txpac_max: 92.37560894973794
+    txpac_avg: 34.33959358452791
+    txpackb_max: 57.078125
+    txpackb_avg: 28.468976151315793
+write:
+  Cpustat:
+  - cpu_max: 4.466
+    cpu_avg: 4.28
+  - cpu_max: 4.955
+    cpu_avg: 4.422
+  - cpu_max: 4.496
+    cpu_avg: 4.279
+  - cpu_max: 5.724
+    cpu_avg: 4.740666666666667
+  - cpu_max: 5.631
+    cpu_avg: 4.833333333333333
+  - cpu_max: 5.383
+    cpu_avg: 4.459666666666666
+  - cpu_max: 5.356
+    cpu_avg: 4.501666666666667
+  - cpu_max: 5.077
+    cpu_avg: 4.578
+  - cpu_max: 4.071
+    cpu_avg: 3.880333333333333
+  - cpu_max: 5.726
+    cpu_avg: 5.067666666666667
+  - cpu_max: 4.815
+    cpu_avg: 4.526666666666667
+  - cpu_max: 5.736
+    cpu_avg: 5.2749999999999995
+  - cpu_max: 4.8
+    cpu_avg: 4.545
+  - cpu_max: 4.82
+    cpu_avg: 4.257666666666667
+  - cpu_max: 4.929
+    cpu_avg: 4.668333333333334
+  - cpu_max: 4.536
+    cpu_avg: 4.196
+  Iostat:
+  - wmb_max: 30.4
+    wmb_avg: 23.4
+    wrq_max: 90
+    wrq_avg: 77.375
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 15.8
+    util_avg: 14
+  - wmb_max: 36.2
+    wmb_avg: 26.8
+    wrq_max: 84.25
+    wrq_avg: 77.375
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 16.8
+    util_avg: 13.9
+  - wmb_max: 43.6
+    wmb_avg: 39.25
+    wrq_max: 111.25
+    wrq_avg: 100.25
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 20.1
+    util_avg: 18.200000000000003
+  - wmb_max: 41.8
+    wmb_avg: 29.75
+    wrq_max: 101.75
+    wrq_avg: 87.375
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 18.2
+    util_avg: 15.05
+  - wmb_max: 28.2
+    wmb_avg: 24.15
+    wrq_max: 97.25
+    wrq_avg: 82.125
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 15.2
+    util_avg: 13.85
+  - wmb_max: 17.7
+    wmb_avg: 17.549999999999997
+    wrq_max: 66.25
+    wrq_avg: 63.75
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 12.3
+    util_avg: 12.2
+  - wmb_max: 31.2
+    wmb_avg: 24.1
+    wrq_max: 79.25
+    wrq_avg: 70.375
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 16.2
+    util_avg: 14.05
+  - wmb_max: 40.1
+    wmb_avg: 34.3
+    wrq_max: 115
+    wrq_avg: 106.25
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 18.7
+    util_avg: 17
+  - wmb_max: 31.3
+    wmb_avg: 31.200000000000003
+    wrq_max: 93.25
+    wrq_avg: 85.375
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 15.8
+    util_avg: 15.7
+  - wmb_max: 35.4
+    wmb_avg: 32.75
+    wrq_max: 104.5
+    wrq_avg: 92.75
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 17.6
+    util_avg: 16.3
+  - wmb_max: 57.1
+    wmb_avg: 52.2
+    wrq_max: 112.5
+    wrq_avg: 108.62
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 22.1
+    util_avg: 21.1
+  - wmb_max: 27
+    wmb_avg: 23.75
+    wrq_max: 75.25
+    wrq_avg: 71.875
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 14.3
+    util_avg: 13.2
+  - wmb_max: 17.5
+    wmb_avg: 17.3
+    wrq_max: 75
+    wrq_avg: 68.625
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 11.9
+    util_avg: 11.9
+  - wmb_max: 31
+    wmb_avg: 24.4
+    wrq_max: 86.25
+    wrq_avg: 83.5
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 16.6
+    util_avg: 14.9
+  - wmb_max: 53.7
+    wmb_avg: 50.25
+    wrq_max: 91.52
+    wrq_avg: 88.75999999999999
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 20.7
+    util_avg: 19.65
+  - wmb_max: 60.5
+    wmb_avg: 55.7
+    wrq_max: 101.25
+    wrq_avg: 94.75
+    rmb_max: 0
+    rmb_avg: 0
+    rrq_max: 0
+    rrq_avg: 0
+    util_max: 23.6
+    util_avg: 21.6
+  Memstat:
+  - mem_max: 13.8
+    mem_avg: 2.549
+    loads: 6.55843114e+09
+    stores: 5.191029443e+09
+  - mem_max: 15.1
+    mem_avg: 2.711
+    loads: 5.007965389e+09
+    stores: 3.956902574e+09
+  - mem_max: 12.9
+    mem_avg: 2.843
+    loads: 6.516175922e+09
+    stores: 5.203148618e+09
+  - mem_max: 12.3
+    mem_avg: 1.722
+    loads: 7.050026057e+09
+    stores: 5.360778813e+09
+  - mem_max: 12.6
+    mem_avg: 2.132
+    loads: 9.131439848e+09
+    stores: 7.018521159e+09
+  - mem_max: 14.3
+    mem_avg: 1.674
+    loads: 6.877255412e+09
+    stores: 5.578433607e+09
+  - mem_max: 14.1
+    mem_avg: 2.105
+    loads: 5.582473315e+09
+    stores: 4.317092861e+09
+  - mem_max: 18
+    mem_avg: 2.351
+    loads: 3.943626346e+09
+    stores: 3.251907524e+09
+  - mem_max: 14.5
+    mem_avg: 2.255
+    loads: 4.0624864e+09
+    stores: 3.301372996e+09
+  - mem_max: 12.5
+    mem_avg: 1.584
+    loads: 4.864179174e+09
+    stores: 3.666853289e+09
+  - mem_max: 18.7
+    mem_avg: 2.19
+    loads: 3.349305499e+09
+    stores: 2.624995789e+09
+  - mem_max: 15.3
+    mem_avg: 1.974
+    loads: 4.711700524e+09
+    stores: 3.758237669e+09
+  - mem_max: 14
+    mem_avg: 2.003
+    loads: 5.502950403e+09
+    stores: 4.272596248e+09
+  - mem_max: 17.1
+    mem_avg: 2.789
+    loads: 3.731014123e+09
+    stores: 3.046857063e+09
+  - mem_max: 14.1
+    mem_avg: 2.189
+    loads: 3.342497009e+09
+    stores: 2.74482698e+09
+  - mem_max: 16.2
+    mem_avg: 2.867
+    loads: 5.462298103e+09
+    stores: 4.217789953e+09
+  Netstat:
+  - rxmb_max: 18.53010924342543
+    rxmb_avg: 17.974262541664437
+    rxpac_max: 3060.937322034816
+    rxpac_avg: 2899.0911237153337
+    rxpackb_max: 79.703125
+    rxpackb_avg: 6.3594585814469315
+    txmb_max: 0.9616515102583452
+    txmb_avg: 0.9164047309124232
+    txpac_max: 1838.3344466895976
+    txpac_avg: 1750.834809720959
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5359937815749924
+  - rxmb_max: 19.019079337186437
+    rxmb_avg: 18.159984730589123
+    rxpac_max: 3313.956947253093
+    rxpac_avg: 2980.6333675588603
+    rxpackb_max: 91.015625
+    rxpackb_avg: 6.251494035797613
+    txmb_max: 1.0449998348154752
+    txmb_avg: 0.958782285714825
+    txpac_max: 2007.485557212812
+    txpac_avg: 1833.7506058213482
+    txpackb_max: 1.015625
+    txpackb_avg: 0.535459595009291
+  - rxmb_max: 18.610117088906133
+    rxmb_avg: 18.159323775060752
+    rxpac_max: 3002.7492148340943
+    rxpac_avg: 2892.675013183977
+    rxpackb_max: 79.703125
+    rxpackb_avg: 6.431612593135784
+    txmb_max: 0.9378297051747391
+    txmb_avg: 0.9191660932552695
+    txpac_max: 1798.0720499084243
+    txpac_avg: 1755.1614580218884
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5362717191144163
+  - rxmb_max: 18.53044509352713
+    rxmb_avg: 18.154685441332095
+    rxpac_max: 3230.494962593929
+    rxpac_avg: 2963.5020759143217
+    rxpackb_max: 91.015625
+    rxpackb_avg: 6.291508383404205
+    txmb_max: 0.989126655881495
+    txmb_avg: 0.9490058970346518
+    txpac_max: 1896.7332401595654
+    txpac_avg: 1816.2682833123133
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5350610143093842
+  - rxmb_max: 19.160377380416175
+    rxmb_avg: 18.374438280835328
+    rxpac_max: 3109.080198735534
+    rxpac_avg: 2938.5596356712585
+    rxpackb_max: 91.015625
+    rxpackb_avg: 6.410385338100829
+    txmb_max: 1.0050931218176797
+    txmb_avg: 0.9457276726664862
+    txpac_max: 1927.0052307801302
+    txpac_avg: 1809.9389449242688
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5350666975035876
+  - rxmb_max: 18.36545056647669
+    rxmb_avg: 17.72363784810329
+    rxpac_max: 3103.780514959119
+    rxpac_avg: 2871.9467278722695
+    rxpackb_max: 79.703125
+    rxpackb_avg: 6.331728400719687
+    txmb_max: 0.9942569200362924
+    txmb_avg: 0.9291076548108526
+    txpac_max: 1909.8186842800749
+    txpac_avg: 1778.504077996573
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5349684316224329
+  - rxmb_max: 18.14168135181867
+    rxmb_avg: 17.462108030478866
+    rxpac_max: 3079.620375313431
+    rxpac_avg: 2771.6546074511098
+    rxpackb_max: 91.015625
+    rxpackb_avg: 6.466373855095933
+    txmb_max: 0.9674063315678919
+    txmb_avg: 0.9080300898319612
+    txpac_max: 1856.5011871920578
+    txpac_avg: 1738.885968773464
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5347490479344625
+  - rxmb_max: 18.408483859744642
+    rxmb_avg: 18.03230041578871
+    rxpac_max: 3182.127918476839
+    rxpac_avg: 2937.77065934146
+    rxpackb_max: 79.703125
+    rxpackb_avg: 6.2933338637737375
+    txmb_max: 0.9943217405092106
+    txmb_avg: 0.9552351502116496
+    txpac_max: 1908.9130496340772
+    txpac_avg: 1829.1642412468987
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5347650801018454
+  - rxmb_max: 18.139634489318755
+    rxmb_avg: 17.869278712029
+    rxpac_max: 3287.3723290916637
+    rxpac_avg: 3008.8675738864363
+    rxpackb_max: 91.015625
+    rxpackb_avg: 6.102393217412471
+    txmb_max: 1.0238860071233806
+    txmb_avg: 0.9571272665551283
+    txpac_max: 1977.59871526656
+    txpac_avg: 1835.6846262293238
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5340116294967505
+  - rxmb_max: 17.811749150574588
+    rxmb_avg: 17.432309396309883
+    rxpac_max: 3083.799892797695
+    rxpac_avg: 2932.6043693794636
+    rxpackb_max: 79.703125
+    rxpackb_avg: 6.0971727801947235
+    txmb_max: 0.9835042782362112
+    txmb_avg: 0.9252767400339336
+    txpac_max: 1888.7535947059423
+    txpac_avg: 1774.406806685101
+    txpackb_max: 1.015625
+    txpackb_avg: 0.533991076436214
+  - rxmb_max: 18.61792059083435
+    rxmb_avg: 18.273490521499074
+    rxpac_max: 2930.3608962589415
+    rxpac_avg: 2835.881761821917
+    rxpackb_max: 79.703125
+    rxpackb_avg: 6.603469260775083
+    txmb_max: 0.9559165408659689
+    txmb_avg: 0.9367936081055301
+    txpac_max: 1822.0317861207807
+    txpac_avg: 1788.336028208913
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5364226936421179
+  - rxmb_max: 19.102082322488084
+    rxmb_avg: 18.393407242867195
+    rxpac_max: 3186.7511514107036
+    rxpac_avg: 2982.1568082132007
+    rxpackb_max: 79.703125
+    rxpackb_avg: 6.321127086823679
+    txmb_max: 0.9747665565952269
+    txmb_avg: 0.961363081281329
+    txpac_max: 1863.8648788213154
+    txpac_avg: 1837.71088653185
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5356913129713063
+  - rxmb_max: 18.55707768335157
+    rxmb_avg: 18.168194979545813
+    rxpac_max: 3059.697068690623
+    rxpac_avg: 2979.1016700028595
+    rxpackb_max: 91.015625
+    rxpackb_avg: 6.247271080479715
+    txmb_max: 0.969902966090685
+    txmb_avg: 0.9336597257475956
+    txpac_max: 1861.9375303440315
+    txpac_avg: 1787.1797151913568
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5349890539284348
+  - rxmb_max: 18.497363302425025
+    rxmb_avg: 18.08383520386329
+    rxpac_max: 2974.773362320297
+    rxpac_avg: 2876.345873609498
+    rxpackb_max: 68.390625
+    rxpackb_avg: 6.4453950721411415
+    txmb_max: 0.9773567849635122
+    txmb_avg: 0.9365507515010096
+    txpac_max: 1871.182443267396
+    txpac_avg: 1791.4761449548575
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5353475085769558
+  - rxmb_max: 18.523206615377823
+    rxmb_avg: 18.01749135621327
+    rxpac_max: 2890.942595140415
+    rxpac_avg: 2781.66060057423
+    rxpackb_max: 79.703125
+    rxpackb_avg: 6.646733258128643
+    txmb_max: 0.9564999819904576
+    txmb_avg: 0.9132688019339374
+    txpac_max: 1822.9575341872967
+    txpac_avg: 1742.5587269632808
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5366628741020554
+  - rxmb_max: 19.030272240084273
+    rxmb_avg: 18.012425711504612
+    rxpac_max: 3233.663807519593
+    rxpac_avg: 2883.5791862740316
+    rxpackb_max: 79.703125
+    rxpackb_avg: 6.421943131609261
+    txmb_max: 1.0473348891511884
+    txmb_avg: 0.9319399603793139
+    txpac_max: 2013.9643823989024
+    txpac_avg: 1783.7626260990917
+    txpackb_max: 1.015625
+    txpackb_avg: 0.5350710603032324
