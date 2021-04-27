@@ -1,0 +1,1030 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" width="1200" height="2700" onload="init(evt)" viewBox="0 0 1200 2700" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- ACT FLAMEGRAPH PRO DEMO -->
+<!-- NOTES:  -->
+<defs>
+	<linearGradient id="background" y1="0" y2="1" x1="0" x2="0" >
+		<stop stop-color="#eeeeee" offset="5%" />
+		<stop stop-color="#eeeeb0" offset="95%" />
+	</linearGradient>
+</defs>
+<style type="text/css">
+	text { font-family:Verdana; font-size:12px; fill:rgb(0,0,0); }
+	#search, #ignorecase { opacity:0.1; cursor:pointer; }
+	#search:hover, #search.show, #ignorecase:hover, #ignorecase.show { opacity:1; }
+	#subtitle { text-anchor:middle; font-color:rgb(160,160,160); }
+	#title { text-anchor:middle; font-size:17px}
+	#unzoom { cursor:pointer; }
+	#frames > *:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+	.hide { display:none; }
+	.parent { opacity:0.5; }
+</style>
+<script type="text/ecmascript">
+<![CDATA[
+	"use strict";
+	var details, searchbtn, unzoombtn, matchedtxt, svg, searching, currentSearchTerm, ignorecase, ignorecaseBtn, timesnow,timeNow_gl,timeMultiple, time_x, prefix, suffix, xmin_gl, xmax_gl;
+	function init(evt) {
+		timeNow_gl = 0.0;
+		timeMultiple = 11.034745762711864;
+		xmin_gl = 10.0;
+		// set as width of this svg
+		xmax_gl = 0.0;
+		prefix = "";
+		suffix = "diff: 0s";
+		timesnow = document.getElementById("timesnow").firstChild;
+		time_x = document.getElementsByTagName("line")[1];
+		details = document.getElementById("details").firstChild;
+		
+		searchbtn = document.getElementById("search");
+		ignorecaseBtn = document.getElementById("ignorecase");
+		unzoombtn = document.getElementById("unzoom");
+		matchedtxt = document.getElementById("matched");
+		svg = document.getElementsByTagName("svg")[0];
+		searching = 0;
+		currentSearchTerm = null;
+	}
+
+	window.addEventListener("click", function(e) {
+		var target = find_group(e.target);
+		if (target) {
+			if (target.nodeName == "a") {
+				if (e.ctrlKey === false) return;
+				e.preventDefault();
+			}
+			if (target.classList.contains("parent")) unzoom();
+			zoom(target);
+		}
+		else if (e.target.id == "unzoom") unzoom();
+		else if (e.target.id == "search") search_prompt();
+		else if (e.target.id == "ignorecase") toggle_ignorecase();
+	}, false)
+
+
+	// mouse-over for info
+	// show
+	window.addEventListener("mouseover", function(e) {
+		var target = find_group(e.target);
+		if (target) details.nodeValue = "Function: " + g_to_text(target);
+		// zoom后计算相对值
+		//prefix = "timestick: "+e.clientX +"s; ";
+		var newTime = 0;
+		timeNow_gl = timeMultiple * ( xmin_gl - 10.0 + (xmax_gl - xmin_gl)*(e.clientX-10.0)/(svg.width.baseVal.value- 2*10.0) )
+		if(timeNow_gl<0){
+			timeNow_gl = 0.0;
+		}
+		prefix = "timestick: "+ timeNow_gl +"s; ";
+		timesnow.nodeValue = prefix + suffix;
+	}, false)
+
+	// mouse-down for info    LFJLFJLFJLFJ
+	// show
+	window.addEventListener("mousedown", function(e) {
+		if(xmax_gl===0.0){
+			xmax_gl = svg.width.baseVal.value - 10.0
+		}
+		if(xmin_gl===0.0){
+			xmin_gl = 10.0
+		}
+		// zoom后计算相对值
+		var newTime = 0;
+		timeNow_gl = timeMultiple * ( xmin_gl - 10.0 + (xmax_gl - xmin_gl)*(e.clientX-10.0)/(svg.width.baseVal.value- 2*10.0) )
+		if(timeNow_gl<0){
+			timeNow_gl = 0.0;
+		}
+		prefix = "timestick: "+ timeNow_gl +"s; ";
+		var lastTimeNow_gl = timeMultiple * ( xmin_gl - 10.0 + (xmax_gl - xmin_gl)*(time_x.getAttribute("x1")-10.0)/(svg.width.baseVal.value- 2*10.0) )
+		suffix = "diff: "+String( timeNow_gl - lastTimeNow_gl )+"s";
+		timesnow.nodeValue = prefix + suffix;
+
+		time_x.setAttribute("x1",e.clientX);
+		time_x.setAttribute("x2",e.clientX);
+		console.log("TimeStamp:::",e.timeStamp, "  xmin:[",xmin_gl,"] xmax[",xmax_gl,"]")
+	}, false)
+
+	// clear
+	window.addEventListener("mouseout", function(e) {
+		var target = find_group(e.target);
+		if (target) details.nodeValue = ' ';
+	}, false)
+
+	// ctrl-F for search
+	window.addEventListener("keydown",function (e) {
+		if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+			e.preventDefault();
+			search_prompt();
+		}
+	}, false)
+
+	// ctrl-I to toggle case-sensitive search
+	window.addEventListener("keydown",function (e) {
+		if (e.ctrlKey && e.keyCode === 73) {
+			e.preventDefault();
+			toggle_ignorecase();
+		}
+	}, false)
+
+	// functions
+	function find_child(node, selector) {
+		var children = node.querySelectorAll(selector);
+		if (children.length) return children[0];
+		return;
+	}
+	
+	function find_group(node) {
+		var parent = node.parentElement;
+		if (!parent) return;
+		if (parent.id == "frames") return node;
+		return find_group(parent);
+	}
+
+	function orig_save(e, attr, val) {
+		if (e.attributes["_orig_" + attr] != undefined) return;
+		if (e.attributes[attr] == undefined) return;
+		if (val == undefined) val = e.attributes[attr].value;
+		e.setAttribute("_orig_" + attr, val);
+	}
+
+	function orig_load(e, attr) {
+		if (e.attributes["_orig_"+attr] == undefined) return;
+		e.attributes[attr].value = e.attributes["_orig_" + attr].value;
+		e.removeAttribute("_orig_"+attr);
+	}
+
+	function g_to_text(e) {
+		var text = find_child(e, "title").firstChild.nodeValue;
+		return (text)
+	}
+
+	function g_to_func(e) {
+		var func = g_to_text(e);
+		// if there's any manipulation we want to do to the function
+		// name before it's searched, do it here before returning.
+		return (func);
+	}
+
+	function update_text(e) {
+		var r = find_child(e, "rect");
+		var t = find_child(e, "text");
+		var w = parseFloat(r.attributes.width.value) -3;
+		var txt = find_child(e, "title").textContent.replace(/\([^(]*\)$/,"");
+		t.attributes.x.value = parseFloat(r.attributes.x.value) + 3;
+
+		// Smaller than this size won't fit anything
+		if (w < 2 * 12 * 0.59) {
+			t.textContent = "";
+			return;
+		}
+
+		t.textContent = txt;
+		// Fit in full text width
+		if (/^ *$/.test(txt) || t.getSubStringLength(0, txt.length) < w)
+			return;
+
+		for (var x = txt.length - 2; x > 0; x--) {
+			if (t.getSubStringLength(0, x + 2) <= w) {
+				t.textContent = txt.substring(0, x) + "..";
+				return;
+			}
+		}
+		t.textContent = "";
+	}
+
+	// zoom
+	function zoom_reset(e) {
+		xmin_gl = 10.0;
+		xmax_gl = svg.width.baseVal.value - 10.0;
+		if (e.attributes != undefined) {
+			orig_load(e, "x");
+			orig_load(e, "width");
+		}
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_reset(c[i]);
+		}
+	}
+
+	function zoom_child(e, x, ratio) {
+		if (e.attributes != undefined) {
+			if (e.attributes.x != undefined) {
+				orig_save(e, "x");
+				e.attributes.x.value = (parseFloat(e.attributes.x.value) - x - 10) * ratio + 10;
+				if (e.tagName == "text")
+					e.attributes.x.value = find_child(e.parentNode, "rect[x]").attributes.x.value + 3;
+			}
+			if (e.attributes.width != undefined) {
+				orig_save(e, "width");
+				e.attributes.width.value = parseFloat(e.attributes.width.value) * ratio;
+			}
+		}
+
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_child(c[i], x - 10, ratio);
+		}
+	}
+
+	function zoom_parent(e) {
+		if (e.attributes) {
+			if (e.attributes.x != undefined) {
+				orig_save(e, "x");
+				e.attributes.x.value = 10;
+			}
+			if (e.attributes.width != undefined) {
+				orig_save(e, "width");
+				e.attributes.width.value = parseInt(svg.width.baseVal.value) - (10 * 2);
+			}
+		}
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_parent(c[i]);
+		}
+	}
+
+	function zoom(node) {
+		var attr = find_child(node, "rect").attributes;
+		var width = parseFloat(attr.width.value);
+		var xmin = parseFloat(attr.x.value);
+		var xmax = parseFloat(xmin + width);
+		var ymin = parseFloat(attr.y.value);
+		var ratio = (svg.width.baseVal.value - 2 * 10) / width;
+		xmin_gl = xmin+10.0;
+		xmax_gl = xmax+10.0;
+
+		// XXX: Workaround for JavaScript float issues (fix me)
+		var fudge = 0.0001;
+
+		unzoombtn.classList.remove("hide");
+
+		var el = document.getElementById("frames").children;
+		for (var i = 0; i < el.length; i++) {
+			var e = el[i];
+			var a = find_child(e, "rect").attributes;
+			var ex = parseFloat(a.x.value);
+			var ew = parseFloat(a.width.value);
+			var upstack;
+			// Is it an ancestor
+			if (0 == 0) {
+				upstack = parseFloat(a.y.value) > ymin;
+			} else {
+				upstack = parseFloat(a.y.value) < ymin;
+			}
+			if (upstack) {
+				// Direct ancestor
+				if (ex <= xmin && (ex+ew+fudge) >= xmax) {
+					e.classList.add("parent");
+					zoom_parent(e);
+					update_text(e);
+				}
+				// not in current path
+				else
+					e.classList.add("hide");
+			}
+			// Children maybe
+			else {
+				// no common path
+				if (ex < xmin || ex + fudge >= xmax) {
+					e.classList.add("hide");
+				}
+				else {
+					zoom_child(e, xmin, ratio);
+					update_text(e);
+				}
+			}
+		}
+		search();
+	}
+
+	function unzoom() {
+		unzoombtn.classList.add("hide");
+		var el = document.getElementById("frames").children;
+		for(var i = 0; i < el.length; i++) {
+			el[i].classList.remove("parent");
+			el[i].classList.remove("hide");
+			zoom_reset(el[i]);
+			update_text(el[i]);
+		}
+		search();
+	}
+
+	// search
+	function toggle_ignorecase() {
+		ignorecase = !ignorecase;
+		if (ignorecase) {
+			ignorecaseBtn.classList.add("show");
+		} else {
+			ignorecaseBtn.classList.remove("show");
+		}
+		reset_search();
+		search();
+	}
+
+	function reset_search() {
+		var el = document.querySelectorAll("#frames rect");
+		for (var i = 0; i < el.length; i++) {
+			orig_load(el[i], "fill")
+		}
+	}
+
+	function search_prompt() {
+		if (!searching) {
+			var term = prompt("Enter a search term (regexp " +
+			    "allowed, eg: ^ext4_)"
+			    + (ignorecase ? ", ignoring case" : "")
+			    + "\nPress Ctrl-i to toggle case sensitivity", "");
+			if (term != null) {
+				currentSearchTerm = term;
+				search();
+			}
+		} else {
+			reset_search();
+			searching = 0;
+			currentSearchTerm = null;
+			searchbtn.classList.remove("show");
+			searchbtn.firstChild.nodeValue = "Search"
+			matchedtxt.classList.add("hide");
+			matchedtxt.firstChild.nodeValue = ""
+		}
+	}
+
+	function search(term) {
+		if (currentSearchTerm === null) return;
+		var term = currentSearchTerm;
+
+		var re = new RegExp(term, ignorecase ? 'i' : '');
+		var el = document.getElementById("frames").children;
+		var matches = new Object();
+		var maxwidth = 0;
+		for (var i = 0; i < el.length; i++) {
+			var e = el[i];
+			var func = g_to_func(e);
+			var rect = find_child(e, "rect");
+			if (func == null || rect == null)
+				continue;
+
+			// Save max width. Only works as we have a root frame
+			var w = parseFloat(rect.attributes.width.value);
+			if (w > maxwidth)
+				maxwidth = w;
+
+			if (func.match(re)) {
+				// highlight
+				var x = parseFloat(rect.attributes.x.value);
+				orig_save(rect, "fill");
+				rect.attributes.fill.value = "rgb(230,0,230)";
+
+				// remember matches
+				if (matches[x] == undefined) {
+					matches[x] = w;
+				} else {
+					if (w > matches[x]) {
+						// overwrite with parent
+						matches[x] = w;
+					}
+				}
+				searching = 1;
+			}
+		}
+		if (!searching)
+			return;
+
+		searchbtn.classList.add("show");
+		searchbtn.firstChild.nodeValue = "Reset Search";
+
+		// calculate percent matched, excluding vertical overlap
+		var count = 0;
+		var lastx = -1;
+		var lastw = 0;
+		var keys = Array();
+		for (k in matches) {
+			if (matches.hasOwnProperty(k))
+				keys.push(k);
+		}
+		// sort the matched frames by their x location
+		// ascending, then width descending
+		keys.sort(function(a, b){
+			return a - b;
+		});
+		// Step through frames saving only the biggest bottom-up frames
+		// thanks to the sort order. This relies on the tree property
+		// where children are always smaller than their parents.
+		var fudge = 0.0001;	// JavaScript floating point
+		for (var k in keys) {
+			var x = parseFloat(keys[k]);
+			var w = matches[keys[k]];
+			if (x >= lastx + lastw - fudge) {
+				count += w;
+				lastx = x;
+				lastw = w;
+			}
+		}
+		// display matched percent
+		matchedtxt.classList.remove("hide");
+		var pct = 100 * count / maxwidth;
+		if (pct != 100) pct = pct.toFixed(1)
+		matchedtxt.firstChild.nodeValue = "Matched: " + pct + "%";
+	}
+]]>
+</script>
+
+<rect x="0.0" y="0" width="1200.0" height="2700" fill="url(#background)"  />
+<text id="title" x="600.00" y="24" >Flame Graph Pro</text>
+<text id="details" x="10.00" y="485" > </text>
+<text id="unzoom" x="10.00" y="24" class="hide">Reset Zoom</text>
+<text id="search" x="1090.00" y="24" >Search</text>
+<text id="ignorecase" x="1174.00" y="24" >ic</text>
+<text id="matched" x="1090.00" y="485" > </text>
+<g id="frames">
+
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="111.9506950311036" y="200" width="13.774671684202442" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="114.9506950311036" y="210" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="90.47308194455111" y="215" width="35.25228477075493" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="93.47308194455111" y="225" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="90.47308194455111" y="230" width="35.25228477075493" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="93.47308194455111" y="240" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="90.29183626449581" y="245" width="35.43353045081023" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="93.29183626449581" y="255" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="87.12003686352814" y="260" width="38.695952691805545" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="90.12003686352814" y="270" >java...</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="10.0" y="275" width="116.35972659549958" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="13.0" y="285" >java.base/java.l..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="131.7064741571308" y="290" width="17.67145380539129" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="134.7064741571308" y="300" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="131.7064741571308" y="305" width="17.76207664541894" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="134.7064741571308" y="315" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="187.89263497427234" y="320" width="20.84325320635896" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="190.89263497427234" y="330" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="184.53958989324937" y="335" width="32.986713770063744" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="187.53958989324937" y="345" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="184.26772137316644" y="350" width="44.94892865371323" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="187.26772137316644" y="360" >java.b..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="131.43460563704787" y="365" width="101.04446663082713" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="134.43460563704787" y="375" >java.base/java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="129.98464019660548" y="380" width="102.49443207126949" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="132.98464019660548" y="390" >java.base/java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="126.35972659549958" y="395" width="106.11934567237539" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="129.35972659549958" y="405" >java.base/java..</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="410" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="420" >empty</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="440" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="450" >empty</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="470" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="480" >empty</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="500" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="510" >empty</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="530" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="540" >empty</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="560" width="51.9268873358421" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="570" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="575" width="57.90799477766684" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="585" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8007833499731" y="590" width="63.97972505951924" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="766.8007833499731" y="600" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.4445895092542" y="605" width="66.33591890023807" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="764.4445895092542" y="615" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.4445895092542" y="620" width="66.33591890023807" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="764.4445895092542" y="630" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.6734505798325" y="635" width="17.03709392519776" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="864.6734505798325" y="645" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="650" width="17.218339605253053" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="660" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="879.5261500652791" y="665" width="30.177405729206665" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="882.5261500652791" y="675" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="878.8011673450579" y="680" width="31.627371169649027" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="881.8011673450579" y="690" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="695" width="48.84571077490208" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="705" >java.b..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="860.042239459335" y="710" width="50.47692189539974" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="863.042239459335" y="720" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.5891252591966" y="725" width="50.93003609553798" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="862.5891252591966" y="735" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.7735196989479" y="740" width="51.745641655786805" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="861.7735196989479" y="750" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.7735196989479" y="755" width="51.745641655786805" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="861.7735196989479" y="765" >java.ba..</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="770" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="780" >empty</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="800" width="51.9268873358421" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="810" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="815" width="57.90799477766684" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="825" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="830" width="63.88910221949159" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="840" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.3539666692267" y="845" width="66.42654174026572" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="764.3539666692267" y="855" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.3539666692267" y="860" width="66.42654174026572" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="764.3539666692267" y="870" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="875" width="17.127716765225404" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="885" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="890" width="17.127716765225404" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="900" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="879.6167729053068" y="905" width="12.234083403732432" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="882.6167729053068" y="915" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="879.6167729053068" y="920" width="12.234083403732432" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="882.6167729053068" y="930" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="892.938330389371" y="935" width="11.962214883649489" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="895.938330389371" y="945" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="891.8508563090393" y="950" width="16.402734045004223" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="894.8508563090393" y="960" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="879.6167729053068" y="965" width="30.08678288917902" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="882.6167729053068" y="975" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="878.7105445050304" y="980" width="30.993011289455495" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="881.7105445050304" y="990" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="995" width="48.1207280546809" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="1005" >java.b..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.9516166193073" y="1010" width="49.933184855233854" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="862.9516166193073" y="1020" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.4985024191691" y="1025" width="50.38629905537209" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="862.4985024191691" y="1035" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.7735196989479" y="1040" width="51.11128177559327" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="861.7735196989479" y="1050" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.7735196989479" y="1055" width="51.11128177559327" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="861.7735196989479" y="1065" >java.ba..</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="1070" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="1080" >empty</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="1100" width="51.9268873358421" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="1110" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="1115" width="57.90799477766684" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="1125" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="1130" width="63.88910221949159" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="1140" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.3539666692267" y="1145" width="66.42654174026572" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="764.3539666692267" y="1155" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.3539666692267" y="1160" width="66.42654174026572" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="764.3539666692267" y="1170" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.6734505798325" y="1175" width="17.127716765225404" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="864.6734505798325" y="1185" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.6734505798325" y="1190" width="17.127716765225404" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="864.6734505798325" y="1200" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="879.5261500652791" y="1205" width="33.98356501036787" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="882.5261500652791" y="1215" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="878.8011673450579" y="1220" width="35.34290761078258" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="881.8011673450579" y="1230" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.6734505798325" y="1235" width="52.56124721603563" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="864.6734505798325" y="1245" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="860.042239459335" y="1250" width="54.28308117656094" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="863.042239459335" y="1260" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.4985024191691" y="1265" width="54.82681821672683" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="862.4985024191691" y="1275" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.8641425389756" y="1280" width="55.46117809692036" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="861.8641425389756" y="1290" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.8641425389756" y="1295" width="55.46117809692036" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="861.8641425389756" y="1305" >java.ba..</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="1310" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="1320" >empty</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="1340" width="51.9268873358421" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="1350" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="1355" width="57.90799477766684" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="1365" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8007833499731" y="1370" width="63.97972505951924" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="766.8007833499731" y="1380" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.3539666692267" y="1385" width="66.42654174026572" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="764.3539666692267" y="1395" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.3539666692267" y="1400" width="66.42654174026572" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="764.3539666692267" y="1410" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="1415" width="17.218339605253053" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="1425" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.4922048997773" y="1430" width="17.3089624452807" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="864.4922048997773" y="1440" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="879.5261500652791" y="1445" width="31.446125489593733" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="882.5261500652791" y="1455" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="878.8011673450579" y="1460" width="32.805468090008446" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="881.8011673450579" y="1470" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.4922048997773" y="1475" width="50.114430535289145" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="864.4922048997773" y="1485" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.9516166193073" y="1490" width="51.745641655786805" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="862.9516166193073" y="1500" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.4985024191691" y="1505" width="52.19875585592504" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="862.4985024191691" y="1515" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.4110283388372" y="1520" width="53.28622993625682" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="861.4110283388372" y="1530" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.4110283388372" y="1535" width="53.376852776284466" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="861.4110283388372" y="1545" >java.ba..</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="1550" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="1560" >empty</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="1580" width="51.9268873358421" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="1590" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="1595" width="57.90799477766684" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="1605" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8007833499731" y="1610" width="63.88910221949159" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="766.8007833499731" y="1620" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.4445895092542" y="1625" width="66.24529606021044" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="764.4445895092542" y="1635" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.4445895092542" y="1640" width="66.24529606021044" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="764.4445895092542" y="1650" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="1655" width="17.218339605253053" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="1665" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.4922048997773" y="1670" width="17.3089624452807" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="864.4922048997773" y="1680" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="879.5261500652791" y="1685" width="32.08048536978727" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="882.5261500652791" y="1695" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="878.8011673450579" y="1700" width="33.34920513017433" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="881.8011673450579" y="1710" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.4922048997773" y="1715" width="50.65816757545503" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="864.4922048997773" y="1725" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="860.1328622993626" y="1730" width="52.108133015897394" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="863.1328622993626" y="1740" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.4985024191691" y="1745" width="52.74249289609093" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="862.4985024191691" y="1755" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.8641425389756" y="1760" width="53.376852776284466" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="861.8641425389756" y="1770" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.8641425389756" y="1775" width="53.376852776284466" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="861.8641425389756" y="1785" >java.ba..</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="1790" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="1800" >empty</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="1820" width="51.9268873358421" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="1830" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="1835" width="57.90799477766684" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="1845" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="1850" width="63.88910221949159" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="1860" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.4445895092542" y="1865" width="66.33591890023807" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="764.4445895092542" y="1875" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.4445895092542" y="1880" width="66.33591890023807" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="764.4445895092542" y="1890" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.6734505798325" y="1895" width="17.127716765225404" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="864.6734505798325" y="1905" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="1910" width="17.218339605253053" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="1920" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="879.5261500652791" y="1925" width="33.258582290146684" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="882.5261500652791" y="1935" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="878.8011673450579" y="1940" width="34.708547730589046" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="881.8011673450579" y="1950" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="1955" width="51.9268873358421" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="1965" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="860.042239459335" y="1970" width="53.648721296367405" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="863.042239459335" y="1980" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.4985024191691" y="1985" width="54.19245833653329" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="862.4985024191691" y="1995" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.6828968589202" y="2000" width="55.00806389678212" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="861.6828968589202" y="2010" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.6828968589202" y="2015" width="55.00806389678212" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="861.6828968589202" y="2025" >java.ba..</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="2030" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="2040" >empty</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="2060" width="51.9268873358421" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="2070" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="2075" width="57.8173719376392" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="2085" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8007833499731" y="2090" width="63.97972505951924" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="766.8007833499731" y="2100" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.3539666692267" y="2105" width="66.42654174026572" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="764.3539666692267" y="2115" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.3539666692267" y="2120" width="66.42654174026572" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="764.3539666692267" y="2130" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="2135" width="17.127716765225404" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="2145" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="2150" width="17.127716765225404" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="2160" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="879.5261500652791" y="2165" width="32.624222409953155" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="882.5261500652791" y="2175" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="878.8011673450579" y="2180" width="33.98356501036787" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="881.8011673450579" y="2190" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="2195" width="51.20190461562092" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="2205" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="860.042239459335" y="2210" width="52.92373857614623" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="863.042239459335" y="2220" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.4985024191691" y="2225" width="53.467475616312115" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="862.4985024191691" y="2235" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.7735196989479" y="2240" width="54.19245833653329" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="861.7735196989479" y="2250" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.7735196989479" y="2255" width="54.19245833653329" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="861.7735196989479" y="2265" >java.ba..</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="2270" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="2280" >empty</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="2300" width="51.9268873358421" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="2310" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="2315" width="57.90799477766684" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="2325" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="763.8914061900008" y="2330" width="63.88910221949159" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="766.8914061900008" y="2340" >java.bas..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.3539666692267" y="2345" width="66.42654174026572" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="764.3539666692267" y="2355" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="761.3539666692267" y="2360" width="66.42654174026572" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="764.3539666692267" y="2370" >java.base..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.6734505798325" y="2375" width="17.03709392519776" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="864.6734505798325" y="2385" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="2390" width="17.218339605253053" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="2400" ></text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="879.5261500652791" y="2405" width="30.902388449427846" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="882.5261500652791" y="2415" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="878.8011673450579" y="2420" width="32.17110820981492" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="881.8011673450579" y="2430" >java..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="861.5828277398049" y="2435" width="49.38944781506797" height="15.0" fill="rgb(200,200,0)" rx="2" ry="2" />
+<text  x="864.5828277398049" y="2445" >java.b..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.9516166193073" y="2450" width="51.11128177559327" height="15.0" fill="rgb(250,150,0)" rx="2" ry="2" />
+<text  x="862.9516166193073" y="2460" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="859.5891252591966" y="2465" width="51.473773135703865" height="15.0" fill="rgb(220,170,0)" rx="2" ry="2" />
+<text  x="862.5891252591966" y="2475" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.6828968589202" y="2480" width="52.38000153598034" height="15.0" fill="rgb(160,240,30)" rx="2" ry="2" />
+<text  x="861.6828968589202" y="2490" >java.ba..</text>
+</g>
+<g>
+<title>java.base/java.lang.Thread.getStackTrace(Unknown Source)</title><rect x="858.6828968589202" y="2495" width="52.38000153598034" height="15.0" fill="rgb(210,80,30)" rx="2" ry="2" />
+<text  x="861.6828968589202" y="2505" >java.ba..</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="2510" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="2520" >empty</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="2540" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="2550" >empty</text>
+</g>
+<g>
+<title>empty</title><rect x="10" y="2570" width="1180.0" height="15.0" fill="rgb(0,250,250)" rx="2" ry="2" />
+<text  x="13" y="2580" >empty</text>
+</g>
+
+
+</g>
+
+<g>
+<line x1="10" y1="2650" x2="1190" y2="2650" style="stroke:rgb(0,255,0);stroke-width:20"/>
+  <text id="timesnow" x="13" y="2652" >0</text>
+  
+<line id="timexline" x1="0" y1="0" x2="0" y2="2700" style="stroke:rgb(0,0,0);stroke-width:0.3"/>
+</g>
+
+</svg>
