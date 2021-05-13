@@ -439,7 +439,7 @@
 {% for item in items -%}
 <g>
 <title>{{ item.title }}</title><rect x="{{ item.x }}" y="{{ item.y }}" width="{{ item.width }}" height="15.0" fill="{{item.color}}" rx="2" ry="2" />
-<text  x="{{ item.x_t }}" y="{{ item.y_t }}" >{{ item.text }}</text>
+<text x="{{ item.x_t }}" y="{{ item.y_t }}" >{{ item.text }}</text>
 </g>
 {% endfor %}
 

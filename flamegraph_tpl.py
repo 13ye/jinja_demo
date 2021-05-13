@@ -40,33 +40,50 @@ print(time_min, time_max, timeMultiple)
 
 for fileName in fileNames:
     with open(flametrace_dir+fileName,"r") as filein:
+        file_item_batch = []
+        depth = 1
         for line in filein.readlines():
             x = line.split(";")
             mintime = int(x[len(x)-2])
             maxtime = int(x[-1])
-            if (maxtime - mintime)/(time_max-time_min)>0.01:
+            if (maxtime - mintime)/(time_max-time_min)>0.001:
+                has_item = True
                 item = {}
                 title = ""
-                item["title"] = x[len(x)-3]
+                #print(x)
+                item["title"] = x[len(x)-5].replace("<","[").replace(">","]")
                 item["x_t"] = str((mintime - time_min) / timeMultiple + 13 )
                 item["x"] = str( (mintime - time_min) / timeMultiple + 10 )
-                item["y"] = str(200+height)
-                item["y_t"] = str(210+height)
+                #item["y"] = str(100+height)
+                #item["y_t"] = item["y"]+10
+                item["y"] = len(x)-5+1
+                if depth < item["y"]:
+                    depth = item["y"]
                 item["width"] = (maxtime - mintime) / timeMultiple
                 if item["width"] > 30:
                     if len(item["title"]) < int(item["width"]/7):
                         item["text"] = item["title"]
                     else:
                         item["text"] = item["title"][:min(len(item["title"])-1,int(item["width"]/7.1))] + ".."
-                    print(len(item["title"])-1, item["title"], int(item["width"]/7.1))
+                    print(len(item["title"])-1, int(item["width"]/7.1), item["title"])
                 item["color"] = colors[color_index%len(colors)]
-                items.append(item)
+                file_item_batch.append(item)
+                #items.append(item)
                 color_index += 1
-                height += 15
-        item = {"title":"empty","text":"empty","x":str(10),"x_t":str(13),"y":str(200+height),"y_t":str(210+height),"width":(time_max-time_min)/timeMultiple,"color":"rgb(0,250,250)"}
-        items.append(item)
-        height += 30
-height += 250
+        for item in file_item_batch:
+            item["y"] = (depth - item["y"])*15 + 100 + height
+            item["y_t"] = item["y"]+10
+            items.append(item)
+        # add separation line
+        if len(file_item_batch)>0:
+            height += 15*depth
+            print(height,depth)
+            item = {"title":"separation","text":"separation","x":str(10),"x_t":str(13),"y":str(100+height),"y_t":str(110+height),"width":(time_max-time_min)/timeMultiple,"color":"rgb(0,250,250)"}
+            items.append(item)
+            height += 30
+item = {"title":"all","text":"all","x":str(10),"x_t":str(13),"y":str(100+height),"y_t":str(110+height),"width":(time_max-time_min)/timeMultiple,"color":"rgb(255,0,0)"}
+items.append(item)
+height += 150
 
 # generate jinja template
 file_loader = FileSystemLoader('templates')
