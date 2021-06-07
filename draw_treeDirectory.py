@@ -22,7 +22,7 @@ def DFS(path, parent, depth, clusterMyLayer):
         name = r.split(" ")[-1]
         if r.startswith("d"):
             global_cluster_id += 1
-            nodeName = name.replace("-","_")+"_"+str(global_cluster_id)
+            nodeName = name.replace("-","_")+"_"+str(depth)+"_"+str(global_cluster_id)
             clusterMyLayer["nodes"] += nodeName+";"
             lines.append({"from":parent,"to":nodeName})
             clusterNext = {"id":global_cluster_id,"name":name,"nodes":""}
